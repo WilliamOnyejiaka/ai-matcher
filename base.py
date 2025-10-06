@@ -15,6 +15,10 @@ import pandas as pd
 #Initialize ChromaDB Client
 client = chromadb.Client()
 
+
+def json_to_csv(json_data):
+    return pd.DataFrame(json_data)
+
 #Initialize Vector Database
 def init_vectordb():
     dudedb = client.get_or_create_collection("dudes_collection")
