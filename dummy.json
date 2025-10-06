@@ -1,0 +1,21 @@
+    {
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "dateOfBirth": "1995-03-15",
+    "gender": "female",
+    "height": 165,
+    "nativeLanguage": "English",
+    "spokenLanguages": ["English", "Spanish"],
+    "hobbies": ["reading", "hiking", "cooking"],
+    "interests": ["travel", "music", "photography"],
+    "favoriteColors": ["blue", "green"],
+    "minAge": "25",
+    "maxAge": "35",
+    "whatBringsYouHere": "friendship",
+    "genderInterest": "male",
+    "pets": ["dog"],
+    "education": "Bachelor's",
+    "lookingFor": ["friendship", "casual"],
+    "religion": "Christian",
+    "_id": "507f1f77bcf86cd799439019"
+    }
