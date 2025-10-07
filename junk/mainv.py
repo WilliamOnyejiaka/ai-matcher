@@ -1,8 +1,8 @@
 from typing import Generator, List, Tuple
 from pinecone import Pinecone, ServerlessSpec
 from sentence_transformers import SentenceTransformer
-from junk.bio import reformat_to_bio
-from junk.data import user, data
+from bio import reformat_to_bio
+from data import user, data
 import logging
 
 # Configure logging
@@ -53,47 +53,36 @@ def json_to_embeddings(json_data: List[dict], batch_size: int = 100) -> Generato
 
 
 def insert_to_vectordb(json_data: List[dict], batch_size: int = 100):
+    # Preprocess and insert new data
     for embeddings, ids in json_to_embeddings(json_data, batch_size):
         try:
-            vectors = [(id, emb, {"_id": str(id)})
-                       for id, emb in zip(ids, embeddings)]
+            vectors = [(id, emb) for id, emb in zip(ids, embeddings)]
             index.upsert(vectors=vectors)
             logger.info(f"Inserted batch of {len(vectors)} vectors.")
         except Exception as e:
             logger.error(f"Failed to insert batch to Pinecone: {str(e)}")
 
 
-def search_vectordb(bio: str, json_data: List[dict], n: int = 1, filter: dict = {}) -> List[str]:
-    # insert_to_vectordb(json_data)  # Insert any new data
+def search_vectordb(bio: str, json_data: List[dict], n: int = 1) -> List[str]:
+    """Search Pinecone for top-n matches, insert new data if needed."""
+    insert_to_vectordb(json_data)  # Insert any new data
     try:
         query_embedding = model.encode([bio])[0].tolist()
-
-        results = index.query(
-            vector=query_embedding,
-            top_k=n,
-            include_values=False,
-            # Filter by nearby user IDs
-            # filter={"_id": {"$nin": ["user8"]}},
-            filter=filter
-            # async_req=True
-        )
-
-        # query_results = results.get("matches")  # Get the result from ApplyResult object
-        # Extract IDs
+        results = index.query(vector=query_embedding,
+                              top_k=n, include_values=False)
         matched_ids = [result.id for result in results.matches]
 
-        # if matched_ids:
-        #     index.delete(ids=matched_ids)
+        if matched_ids:
+            index.delete(ids=matched_ids)
 
         return matched_ids
     except Exception as e:
         logger.error(f"Query failed: {str(e)}")
-        # return []
+        return []
 
 
 if __name__ == "__main__":
     n = 100
     bio = reformat_to_bio(user)['bio']
-    results = search_vectordb(
-        bio, data, n, {"_id": {"$nin": ["user8", "user7"]}})
+    results = search_vectordb(bio, data, n)
     print(results)
