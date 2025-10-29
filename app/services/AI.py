@@ -1,7 +1,7 @@
 from typing import Generator, List, Tuple
 from app.config.db import db
 from app.utils.reformat_to_bio import reformat_to_bio
-from app.config.ai import model, index
+from app.config.ai import get_model
 from app.config.logger import logger
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -16,6 +16,8 @@ class AI:
     def json_to_embeddings(cls, json_data: List[dict], batch_size: int = 100
                            ) -> Generator[Tuple[List, List], None, None]:
         """Yield (embeddings, ids) for each batch."""
+        model = get_model()
+
         for i in range(0, len(json_data), batch_size):
             batch = json_data[i:i + batch_size]
             bios = [reformat_to_bio(item)['bio'] for item in batch]
@@ -30,6 +32,7 @@ class AI:
     @classmethod
     def json_to_embedding(cls, json_data: dict) -> List:
         result = reformat_to_bio(json_data)
+        model = get_model()
         embeddings = model.encode(result['bio'])
         return {"_id":  str(result['_id']), "embedding": embeddings.tolist()}
         # return [(result['_id'], embeddings, {"_id": str(result['_id'])})]
