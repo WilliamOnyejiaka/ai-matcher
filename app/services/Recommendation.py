@@ -1,6 +1,8 @@
 from app.config.db import db
 from bson import ObjectId
 from .AI import AI
+from app.config.ai import get_model
+
 
 
 class Recommendation:
