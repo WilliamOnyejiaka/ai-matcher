@@ -28,3 +28,7 @@ else:
 
 index = pc.Index(index_name)
 model = SentenceTransformer(model_name)
+
+
+# index=None
+# model=None
